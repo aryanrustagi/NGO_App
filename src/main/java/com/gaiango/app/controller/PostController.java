@@ -1,6 +1,9 @@
 package com.gaiango.app.controller;
 
 import com.gaiango.app.model.Post;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -13,7 +16,7 @@ public class PostController {
     private final List<Post> posts = new ArrayList<>();
 
     @PostMapping
-    public String uploadPost(@RequestBody Post post) {
+    public ResponseEntity<?> uploadPost(@RequestBody Post post) {
         posts.add(post);
 
         System.out.println("Received new post:");
@@ -25,7 +28,7 @@ public class PostController {
         System.out.println("Tags: " + post.getTags());
         System.out.println("Category: " + post.getCategory());
 
-        return "Post uploaded successfully!";
+        return new ResponseEntity<>("Post uploaded successfully", HttpStatus.CREATED);
     }
 
     @GetMapping
