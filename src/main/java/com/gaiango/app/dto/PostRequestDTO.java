@@ -1,15 +1,23 @@
 package com.gaiango.app.dto;
 
 public class PostRequestDTO {
+    @NotEmpty(message = "Title cannot be empty")
     private String title;
+    
+    @NotEmpty(message = "Username cannot be empty")
     private String username;
+    
+    @NotEmpty(message = "Content cannot be empty")
     private String content;
+
     private String peopleNo;
     private String tags;
     private String category;
     private String imageName;
     private String imageType;
-    private String imageDate; // <-- Base64-encoded image string
+    
+    @NotEmpty(message = "Image data cannot be empty")
+    private String imageDate; // Base64-encoded image string
 
     // Getters and Setters
     public String getTitle() { return title; }

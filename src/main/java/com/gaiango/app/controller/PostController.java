@@ -23,7 +23,7 @@ public class PostController {
 
     // Accepts JSON with Base64 encoded image
     @PostMapping(value = "/upload", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> uploadPost(@RequestBody PostRequestDTO dto) {
+    public ResponseEntity<?> uploadPost(@RequestBody @Valid PostRequestDTO dto) {
         try {
             Post post = new Post();
             post.setTitle(dto.getTitle());
