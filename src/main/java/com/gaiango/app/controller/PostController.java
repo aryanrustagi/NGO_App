@@ -1,9 +1,9 @@
 package com.gaiango.app.controller;
 
+import com.gaiango.app.dto.PostRequestDTO;
 import com.gaiango.app.model.Post;
 import com.gaiango.app.service.PostService;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/community")
@@ -22,27 +23,27 @@ public class PostController {
     private PostService postService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadPost(
-            @RequestPart("post") String postJson,
-            @RequestPart("imageFile") MultipartFile imageFile) {
+    public ResponseEntity<?> uploadPost(@RequestPart("dto") PostRequestDTO dto, @RequestPart("file") MultipartFile file) {
         try {
-            // Check if the image is being received correctly
-            if (imageFile.isEmpty()) {
-                return new ResponseEntity<>("Image file is missing.", HttpStatus.BAD_REQUEST);
+            Post post = new Post();
+            post.setTitle(dto.getTitle());
+            post.setUsername(dto.getUsername());
+            post.setContent(dto.getContent());
+            post.setPeopleNo(dto.getPeopleNo());
+            post.setTags(dto.getTags());
+            post.setCategory(dto.getCategory());
+            post.setImageName(dto.getImageName());
+            post.setImageType(dto.getImageType());
+
+            if (dto.getImageDate() != null && dto.getImageDate().length > 0) {
+                byte[] decodedImage = Base64.getDecoder().decode(dto.getImageDate());
+                post.setImageDate(decodedImage);
             }
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            Post post = objectMapper.readValue(postJson, Post.class);
-
-            // Check that the image is being processed correctly
-            post.setImageDate(imageFile.getBytes()); // Save the actual image data
-            post.setImageName(imageFile.getOriginalFilename());
-            post.setImageType(imageFile.getContentType());
-
-            Post savedPost = postService.savePost(post, imageFile);
+            Post savedPost = postService.savePost(post, file);
             return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -58,7 +59,7 @@ public class PostController {
 
     @GetMapping("/image/{id}")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
-        Post post = postService.getPostById(id); // implement this method
+        Post post = postService.getPostById(id);
         if (post == null || post.getImageDate() == null) {
             return ResponseEntity.notFound().build();
         }
