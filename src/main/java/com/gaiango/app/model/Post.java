@@ -16,13 +16,16 @@ public class Post {
     private String title;
     private String username;
     private String content;
-    private String image;
 
     @Column(name = "people_no")
     private String peopleNo;
 
     private String tags;
     private String category;
+    private String imageName;
+    private String imageType;
+    @Lob
+    private byte[] imageDate;
 
     // Getters and Setters
 
@@ -58,13 +61,6 @@ public class Post {
         this.content = content;
     }
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
 
     public String getPeopleNo() {
         return peopleNo;
@@ -88,5 +84,28 @@ public class Post {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public String getImageType() {
+        return imageType;
+    }
+
+    public void setImageType(String imageType) {
+        this.imageType = imageType;
+    }
+
+    public byte[] getImageDate() {
+        return imageDate;
+    }
+
+    public void setImageDate(byte[] imageDate) {
+        this.imageDate = imageDate;
     }
 }
