@@ -2,6 +2,7 @@ package com.gaiango.app.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
@@ -25,6 +26,7 @@ public class Post {
     private String imageName;
     private String imageType;
     @Lob
+    @Column(columnDefinition = "LONGBLOB")
     private byte[] imageDate;
 
     // Getters and Setters
@@ -61,7 +63,6 @@ public class Post {
         this.content = content;
     }
 
-
     public String getPeopleNo() {
         return peopleNo;
     }
@@ -85,6 +86,7 @@ public class Post {
     public void setCategory(String category) {
         this.category = category;
     }
+
     public String getImageName() {
         return imageName;
     }
