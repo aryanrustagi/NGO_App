@@ -6,9 +6,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
-
 @Service
 public class PostService {
 
@@ -18,21 +15,18 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public Post savePost(Post post, MultipartFile imageFile) throws IOException {
-        if (imageFile != null && !imageFile.isEmpty()) {
-            post.setImageDate(imageFile.getBytes());
-            post.setImageName(imageFile.getOriginalFilename());
-            post.setImageType(imageFile.getContentType());
-        }
+    // Save post without MultipartFile, works with Base64 image data
+    public Post savePost(Post post) {
         return postRepository.save(post);
     }
 
+    // Get all posts
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
 
+    // Get post by ID
     public Post getPostById(Long id) {
         return postRepository.findById(id).orElse(null);
     }
-
 }

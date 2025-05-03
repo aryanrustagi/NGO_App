@@ -9,10 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Base64;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/community")
@@ -22,8 +21,9 @@ public class PostController {
     @Autowired
     private PostService postService;
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadPost(@RequestPart("dto") PostRequestDTO dto, @RequestPart("file") MultipartFile file) {
+    // Accepts JSON with Base64 encoded image
+    @PostMapping(value = "/upload", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> uploadPost(@RequestBody PostRequestDTO dto) {
         try {
             Post post = new Post();
             post.setTitle(dto.getTitle());
@@ -35,12 +35,12 @@ public class PostController {
             post.setImageName(dto.getImageName());
             post.setImageType(dto.getImageType());
 
-            if (dto.getImageDate() != null && dto.getImageDate().length > 0) {
+            if (dto.getImageDate() != null && !dto.getImageDate().isEmpty()) {
                 byte[] decodedImage = Base64.getDecoder().decode(dto.getImageDate());
                 post.setImageDate(decodedImage);
             }
 
-            Post savedPost = postService.savePost(post, file);
+            Post savedPost = postService.savePost(post);
             return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -67,5 +67,4 @@ public class PostController {
                 .contentType(MediaType.valueOf(post.getImageType()))
                 .body(post.getImageDate());
     }
-
 }
