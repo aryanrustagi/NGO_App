@@ -10,26 +10,35 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/community")
+@CrossOrigin
 public class PostController {
 
-    private final PostService postService;
-
-    public PostController(PostService postService) {
-        this.postService = postService;
-    }
+    @Autowired
+    private PostService postService;
 
     @PostMapping("/upload")
-    public ResponseEntity<Post> uploadPost(@RequestBody Post post) {
-        Post savedPost = postService.savePost(post);
-        if (savedPost == null) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> uploadPost(
+            @RequestPart("post") Post post,
+            @RequestPart("imageFile") MultipartFile imageFile) {
+        try {
+            if (post == null || imageFile.isEmpty()) {
+                return new ResponseEntity<>("Post details or image file is missing.", HttpStatus.BAD_REQUEST);
+            }
+
+            Post savedPost = postService.savePost(post, imageFile);
+            return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
     }
 
     @GetMapping("/fetch")
     public ResponseEntity<List<Post>> getAllPosts() {
-        List<Post> posts = postService.getAllPosts();
-        return new ResponseEntity<>(posts, HttpStatus.OK);
+        try {
+            List<Post> posts = postService.getAllPosts();
+            return new ResponseEntity<>(posts, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
