@@ -1,6 +1,6 @@
 package com.gaiango.app.controller;
 
-import com.gaiango.app.dto.PostRequestDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gaiango.app.model.Post;
 import com.gaiango.app.service.PostService;
 
@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Base64;
 import java.util.List;
@@ -20,30 +21,22 @@ public class PostController {
 
     @Autowired
     private PostService postService;
-
-    // Accepts JSON with Base64 encoded image
-    @PostMapping(value = "/upload", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> uploadPost(@RequestBody @Valid PostRequestDTO dto) {
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadPost(
+            @RequestPart("post") String postJson,
+            @RequestPart("imageFile") MultipartFile imageFile) {
         try {
-            Post post = new Post();
-            post.setTitle(dto.getTitle());
-            post.setUsername(dto.getUsername());
-            post.setContent(dto.getContent());
-            post.setPeopleNo(dto.getPeopleNo());
-            post.setTags(dto.getTags());
-            post.setCategory(dto.getCategory());
-            post.setImageName(dto.getImageName());
-            post.setImageType(dto.getImageType());
+            ObjectMapper objectMapper = new ObjectMapper();
+            Post post = objectMapper.readValue(postJson, Post.class);
 
-            if (dto.getImageDate() != null && !dto.getImageDate().isEmpty()) {
-                byte[] decodedImage = Base64.getDecoder().decode(dto.getImageDate());
-                post.setImageDate(decodedImage);
+            if (imageFile.isEmpty()) {
+                return new ResponseEntity<>("Image file is missing.", HttpStatus.BAD_REQUEST);
             }
 
-            Post savedPost = postService.savePost(post);
+            Post savedPost = postService.savePost(post, imageFile);
             return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -55,16 +48,5 @@ public class PostController {
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @GetMapping("/image/{id}")
-    public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
-        Post post = postService.getPostById(id);
-        if (post == null || post.getImageDate() == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok()
-                .contentType(MediaType.valueOf(post.getImageType()))
-                .body(post.getImageDate());
     }
 }
