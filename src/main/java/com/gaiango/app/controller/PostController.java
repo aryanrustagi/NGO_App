@@ -20,6 +20,7 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadPost(
             @RequestPart("post") String postJson,
