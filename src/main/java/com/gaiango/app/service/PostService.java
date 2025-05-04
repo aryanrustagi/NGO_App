@@ -12,17 +12,23 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final CloudStorageService cloudStorageService;
 
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository, CloudStorageService cloudStorageService) {
         this.postRepository = postRepository;
+        this.cloudStorageService = cloudStorageService;
     }
 
     public Post savePost(Post post, MultipartFile imageFile) throws IOException {
         if (imageFile != null && !imageFile.isEmpty()) {
-            post.setImageDate(imageFile.getBytes());
+            // Upload image to cloud and get the public URL
+            String imageUrl = cloudStorageService.uploadFile(imageFile);
+
             post.setImageName(imageFile.getOriginalFilename());
             post.setImageType(imageFile.getContentType());
+            post.setImageUrl(imageUrl);
         }
+
         return postRepository.save(post);
     }
 

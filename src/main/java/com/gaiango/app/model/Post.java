@@ -22,12 +22,13 @@ public class Post {
     private String category;
     private String imageName;
     private String imageType;
+
     @Lob
     @Column(columnDefinition = "LONGBLOB")
-    private byte[] imageDate;
+    private String imageUrl;
 
-    // Getters and Setters
-
+    // Getters and Setters (if you use Lombok @Data, you can remove these manually
+    // written ones)
     public Long getId() {
         return id;
     }
@@ -100,11 +101,11 @@ public class Post {
         this.imageType = imageType;
     }
 
-    public byte[] getImageDate() {
-        return imageDate;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImageDate(byte[] imageDate) {
-        this.imageDate = imageDate;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
