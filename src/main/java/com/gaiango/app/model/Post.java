@@ -25,7 +25,7 @@ public class Post {
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
-    private String imageUrl;
+    private byte[] imageUrl;
 
     // Getters and Setters (if you use Lombok @Data, you can remove these manually
     // written ones)
@@ -102,10 +102,10 @@ public class Post {
     }
 
     public String getImageUrl() {
-        return imageUrl;
+        return imageUrl != null ? java.util.Base64.getEncoder().encodeToString(imageUrl) : null;
     }
 
     public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+        this.imageUrl = imageUrl != null ? java.util.Base64.getDecoder().decode(imageUrl) : null;
     }
 }

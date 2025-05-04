@@ -12,21 +12,20 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final CloudStorageService cloudStorageService;
 
-    public PostService(PostRepository postRepository, CloudStorageService cloudStorageService) {
+    public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
-        this.cloudStorageService = cloudStorageService;
     }
 
     public Post savePost(Post post, MultipartFile imageFile) throws IOException {
-        if (imageFile != null && !imageFile.isEmpty()) {
-            // Upload image to cloud and get the public URL
-            String imageUrl = cloudStorageService.uploadFile(imageFile);
+        if (post == null) {
+            throw new IllegalArgumentException("Post data is required.");
+        }
 
+        if (imageFile != null && !imageFile.isEmpty()) {
+            post.setImageUrl(java.util.Base64.getEncoder().encodeToString(imageFile.getBytes()));
             post.setImageName(imageFile.getOriginalFilename());
             post.setImageType(imageFile.getContentType());
-            post.setImageUrl(imageUrl);
         }
 
         return postRepository.save(post);

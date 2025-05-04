@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/community")
@@ -29,14 +30,14 @@ public class PostController {
             ObjectMapper objectMapper = new ObjectMapper();
             Post post = objectMapper.readValue(postJson, Post.class);
 
-            if (imageFile.isEmpty()) {
-                return new ResponseEntity<>("Image file is missing.", HttpStatus.BAD_REQUEST);
+            if (imageFile == null || imageFile.isEmpty()) {
+                return new ResponseEntity<>(Map.of("error", "Image file is missing."), HttpStatus.BAD_REQUEST);
             }
 
             Post savedPost = postService.savePost(post, imageFile);
             return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Map.of("error", "Error occurred", "message", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
